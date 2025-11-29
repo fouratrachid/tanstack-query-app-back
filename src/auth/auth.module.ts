@@ -11,15 +11,15 @@ import { UserModule } from '../user/user.module';
 import { RefreshToken } from '../entities/refresh-token.entity';
 
 @Module({
-    imports: [
-        ConfigModule,
-        PassportModule,
-        JwtModule.register({}),
-        TypeOrmModule.forFeature([RefreshToken]),
-        UserModule,
-    ],
-    controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, JwtRefreshStrategy],
-    exports: [AuthService],
+  imports: [
+    ConfigModule,
+    PassportModule,
+    JwtModule.register({}),
+    TypeOrmModule.forFeature([RefreshToken]),
+    UserModule,
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, JwtRefreshStrategy],
+  exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}
