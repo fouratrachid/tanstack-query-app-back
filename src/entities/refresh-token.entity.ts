@@ -1,34 +1,34 @@
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('refresh_tokens')
 export class RefreshToken {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({ type: 'varchar' })
-  token: string;
+    @Column()
+    token: string;
 
-  @Column({ name: 'user_id', type: 'uuid' })
-  userId: string;
+    @Column('uuid')
+    userId: string;
 
-  @Column({ name: 'expires_at', type: 'timestamp' })
-  expiresAt: Date;
+    @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'userId' })
+    user: User;
 
-  @Column({ name: 'is_revoked', type: 'boolean', default: false })
-  isRevoked: boolean;
+    @Column()
+    expiresAt: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+    @Column({ default: false })
+    isRevoked: boolean;
 
-  @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+    @CreateDateColumn()
+    createdAt: Date;
 }

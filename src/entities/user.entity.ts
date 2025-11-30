@@ -1,35 +1,53 @@
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    OneToMany,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { RefreshToken } from './refresh-token.entity';
+import { Post } from './post.entity';
+import { Comment } from './comment.entity';
+import { Like } from './like.entity';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  name: string;
+    @Column()
+    name: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
-  email: string;
+    @Column({ unique: true })
+    email: string;
 
-  @Column({ type: 'varchar' })
-  @Exclude()
-  password: string;
+    @Column()
+    @Exclude()
+    password: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+    @Column({ nullable: true })
+    avatarUrl?: string;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+    @Column({ nullable: true })
+    bio?: string;
 
-  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
-  refreshTokens: RefreshToken[];
+    @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+    refreshTokens: RefreshToken[];
+
+    @OneToMany(() => Post, (post) => post.user)
+    posts: Post[];
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments: Comment[];
+
+    @OneToMany(() => Like, (like) => like.user)
+    likes: Like[];
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
