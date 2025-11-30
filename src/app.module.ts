@@ -5,6 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './entities/user.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { PostsModule } from './posts/posts.module';
+import { Post } from './entities/post.entity';
+import { Like } from './entities/like.entity';
 
 @Module({
   imports: [
@@ -21,7 +24,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, RefreshToken],
+        entities: [User, RefreshToken, Post, Comment, Like],
         synchronize: configService.get('NODE_ENV') === 'development',
         logging: configService.get('NODE_ENV') === 'development',
       }),
@@ -29,6 +32,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
     }),
     AuthModule,
     UserModule,
+    PostsModule
   ],
 })
-export class AppModule {}
+export class AppModule { }
