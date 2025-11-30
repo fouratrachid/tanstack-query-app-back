@@ -20,6 +20,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { GetPostsQueryDto } from './dto/get-posts-query.dto';
 import { PostResponseDto } from './dto/post-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtOptionalGuard } from '../auth/guards/jwt-optional.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../entities/user.entity';
 
@@ -42,6 +43,7 @@ export class PostsController {
     }
 
     @Get()
+    @UseGuards(JwtOptionalGuard)
     async findAll(
         @Query() query: GetPostsQueryDto,
         @CurrentUser() user?: User,
@@ -50,6 +52,7 @@ export class PostsController {
     }
 
     @Get(':id')
+    @UseGuards(JwtOptionalGuard)
     async findOne(@Param('id') id: string, @CurrentUser() user?: User) {
         const post = await this.postsService.findOne(id, user?.id);
         return PostResponseDto.fromEntity(post, user?.id);
@@ -110,6 +113,7 @@ export class PostsController {
     }
 
     @Get(':id/comments')
+    @UseGuards(JwtOptionalGuard)
     async getComments(
         @Param('id') postId: string,
         @Query('page') page?: number,
