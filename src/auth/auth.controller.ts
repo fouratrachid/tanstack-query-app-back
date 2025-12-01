@@ -13,14 +13,19 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { AdminSignupDto } from './dto/admin-signup.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { RolesGuard } from './guards/roles.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { Roles } from './decorators/roles.decorator';
 import { User } from '../entities/user.entity';
+import { Role } from '../common/enums/role.enum';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
@@ -56,7 +61,22 @@ export class AuthController {
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
       createdAt: user.createdAt,
     };
+  }
+
+  @Post('admin/signup')
+  @HttpCode(HttpStatus.CREATED)
+  async adminSignup(@Body() adminSignupDto: AdminSignupDto): Promise<AuthResponseDto> {
+    return this.authService.adminSignup(adminSignupDto);
+  }
+
+  @Post('admin/users')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.authService.createUser(createUserDto);
   }
 }

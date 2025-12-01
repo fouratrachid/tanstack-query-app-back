@@ -14,7 +14,10 @@ import { RefreshToken } from '../entities/refresh-token.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { AdminSignupDto } from './dto/admin-signup.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '../entities/user.entity';
+import { Role } from '../common/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +27,7 @@ export class AuthService {
     private configService: ConfigService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
-  ) {}
+  ) { }
 
   async signup(signupDto: SignupDto): Promise<AuthResponseDto> {
     // Check if user already exists
@@ -53,6 +56,7 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt,
       },
       accessToken,
@@ -84,11 +88,73 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt,
       },
       accessToken,
       refreshToken,
     };
+  }
+
+  async adminSignup(adminSignupDto: AdminSignupDto): Promise<AuthResponseDto> {
+    // Check if user already exists
+    const existingUser = await this.userService.findByEmail(adminSignupDto.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Validate role is ADMIN or MODERATOR
+    if (adminSignupDto.role === Role.USER) {
+      throw new BadRequestException('Cannot create regular users with admin signup');
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(adminSignupDto.password, 10);
+
+    // Create user with specified role
+    const user = await this.userService.create({
+      name: adminSignupDto.name,
+      email: adminSignupDto.email,
+      password: hashedPassword,
+      role: adminSignupDto.role,
+    });
+
+    // Generate tokens
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+
+    // Save refresh token
+    await this.saveRefreshToken(user.id, refreshToken);
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    // Check if user already exists
+    const existingUser = await this.userService.findByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    // Create user
+    const user = await this.userService.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    return user;
   }
 
   async refresh(userId: string): Promise<{ accessToken: string; refreshToken: string }> {
@@ -139,7 +205,7 @@ export class AuthService {
   }
 
   private async generateTokens(user: User): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
