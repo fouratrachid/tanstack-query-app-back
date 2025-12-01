@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Post } from '../entities/post.entity';
 import { Like } from '../entities/like.entity';
+import { User } from '../entities/user.entity';
+import { Role } from '../common/enums/role.enum';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import {
@@ -158,7 +160,7 @@ export class PostsService {
 
     async update(
         id: string,
-        userId: string,
+        user: User,
         updatePostDto: UpdatePostDto,
     ): Promise<Post> {
         const post = await this.postRepository.findOne({
@@ -170,7 +172,8 @@ export class PostsService {
             throw new NotFoundException(`Post with ID ${id} not found`);
         }
 
-        if (post.userId !== userId) {
+        // Allow update if user is the owner, admin, or moderator
+        if (post.userId !== user.id && user.role !== Role.ADMIN && user.role !== Role.MODERATOR) {
             throw new ForbiddenException('You can only update your own posts');
         }
 
@@ -178,7 +181,7 @@ export class PostsService {
         return await this.postRepository.save(post);
     }
 
-    async remove(id: string, userId: string): Promise<void> {
+    async remove(id: string, user: User): Promise<void> {
         const post = await this.postRepository.findOne({
             where: { id },
         });
@@ -187,7 +190,8 @@ export class PostsService {
             throw new NotFoundException(`Post with ID ${id} not found`);
         }
 
-        if (post.userId !== userId) {
+        // Allow deletion if user is the owner, admin, or moderator
+        if (post.userId !== user.id && user.role !== Role.ADMIN && user.role !== Role.MODERATOR) {
             throw new ForbiddenException('You can only delete your own posts');
         }
 

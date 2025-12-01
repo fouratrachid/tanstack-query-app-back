@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from '../entities/comment.entity';
 import { Post } from '../entities/post.entity';
+import { User } from '../entities/user.entity';
+import { Role } from '../common/enums/role.enum';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import {
@@ -90,7 +92,7 @@ export class CommentsService {
 
     async update(
         id: string,
-        userId: string,
+        user: User,
         updateCommentDto: UpdateCommentDto,
     ): Promise<Comment> {
         const comment = await this.commentRepository.findOne({
@@ -102,7 +104,8 @@ export class CommentsService {
             throw new NotFoundException(`Comment with ID ${id} not found`);
         }
 
-        if (comment.userId !== userId) {
+        // Allow update if user is the owner, admin, or moderator
+        if (comment.userId !== user.id && user.role !== Role.ADMIN && user.role !== Role.MODERATOR) {
             throw new ForbiddenException('You can only update your own comments');
         }
 
@@ -110,7 +113,7 @@ export class CommentsService {
         return await this.commentRepository.save(comment);
     }
 
-    async remove(id: string, userId: string): Promise<void> {
+    async remove(id: string, user: User): Promise<void> {
         const comment = await this.commentRepository.findOne({
             where: { id },
         });
@@ -119,7 +122,8 @@ export class CommentsService {
             throw new NotFoundException(`Comment with ID ${id} not found`);
         }
 
-        if (comment.userId !== userId) {
+        // Allow deletion if user is the owner, admin, or moderator
+        if (comment.userId !== user.id && user.role !== Role.ADMIN && user.role !== Role.MODERATOR) {
             throw new ForbiddenException('You can only delete your own comments');
         }
 
