@@ -11,6 +11,7 @@ import { RefreshToken } from './refresh-token.entity';
 import { Post } from './post.entity';
 import { Comment } from './comment.entity';
 import { Like } from './like.entity';
+import { Role } from '../common/enums/role.enum';
 
 @Entity('users')
 export class User {
@@ -32,6 +33,13 @@ export class User {
 
     @Column({ nullable: true })
     bio?: string;
+
+    @Column({
+        type: 'enum',
+        enum: Role,
+        default: Role.USER,
+    })
+    role: Role;
 
     @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
     refreshTokens: RefreshToken[];
