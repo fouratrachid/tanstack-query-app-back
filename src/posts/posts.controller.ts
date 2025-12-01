@@ -65,7 +65,7 @@ export class PostsController {
         @CurrentUser() user: User,
         @Body() updatePostDto: UpdatePostDto,
     ) {
-        const post = await this.postsService.update(id, user.id, updatePostDto);
+        const post = await this.postsService.update(id, user, updatePostDto);
         const fullPost = await this.postsService.findOne(post.id, user.id);
         return PostResponseDto.fromEntity(fullPost, user.id);
     }
@@ -74,7 +74,7 @@ export class PostsController {
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     async remove(@Param('id') id: string, @CurrentUser() user: User) {
-        await this.postsService.remove(id, user.id);
+        await this.postsService.remove(id, user);
     }
 
     // Like/Unlike endpoints
@@ -131,7 +131,7 @@ export class PostsController {
     ) {
         return await this.commentsService.update(
             commentId,
-            user.id,
+            user,
             updateCommentDto,
         );
     }
@@ -143,7 +143,7 @@ export class PostsController {
         @Param('commentId') commentId: string,
         @CurrentUser() user: User,
     ) {
-        await this.commentsService.remove(commentId, user.id);
+        await this.commentsService.remove(commentId, user);
     }
 
     @Get(':id/comments/count')
