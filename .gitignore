@@ -42,3 +42,14 @@ lerna-debug.log*
 .env.local
 .env.production
 .env.example
+RBAC_TESTING_GUIDE.md
+RBAC_SUMMARY.md
+RBAC_QUICK_REFERENCE.md
+RBAC_README.md
+RBAC_GUIDE.md
+QUICKSTART.md
+PROJECT_SUMMARY.md
+INTEGRATION.md
+ENV_GUIDE.md
+DEPLOYMENT.md
+API_DOCS.md
