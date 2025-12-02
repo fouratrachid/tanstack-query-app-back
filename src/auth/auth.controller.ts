@@ -8,6 +8,7 @@ import {
   Get,
   Request,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -28,12 +29,14 @@ export class AuthController {
   constructor(private authService: AuthService) { }
 
   @Post('signup')
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 signups per hour
   @HttpCode(HttpStatus.CREATED)
   async signup(@Body() signupDto: SignupDto): Promise<AuthResponseDto> {
     return this.authService.signup(signupDto);
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 attempts per minute
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
@@ -67,6 +70,8 @@ export class AuthController {
   }
 
   @Post('admin/signup')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async adminSignup(@Body() adminSignupDto: AdminSignupDto): Promise<AuthResponseDto> {
     return this.authService.adminSignup(adminSignupDto);

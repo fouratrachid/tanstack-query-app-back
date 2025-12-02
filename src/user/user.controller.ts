@@ -54,8 +54,7 @@ export class UserController {
 
         const { password: _pwd, ...sanitizedUser } = user;
         return sanitizedUser;
-    } @Put(':id')
-    @Roles(Role.ADMIN)
+    }
     @Put(':id')
     @Roles(Role.ADMIN)
     @HttpCode(HttpStatus.OK)
@@ -68,7 +67,11 @@ export class UserController {
         const updatedUser = await this.userService.update(id, updateUserDto);
         const { password: _pwd, ...sanitizedUser } = updatedUser;
         return sanitizedUser;
-    } @HttpCode(HttpStatus.NO_CONTENT)
+    }
+
+    @Delete(':id')
+    @Roles(Role.ADMIN)
+    @HttpCode(HttpStatus.NO_CONTENT)
     async remove(@Param('id') id: string) {
         const user = await this.userService.findById(id);
         if (!user) {
