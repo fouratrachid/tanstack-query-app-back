@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength, IsOptional, IsUrl } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean, MinLength, MaxLength, IsUrl } from 'class-validator';
+import { Sanitize } from '../../common/decorators/sanitize.decorator';
 
 export class CreatePostDto {
     @IsString()
@@ -11,9 +12,15 @@ export class CreatePostDto {
     @IsNotEmpty()
     @MinLength(10)
     @MaxLength(10000)
+    @Sanitize()
     content: string;
 
+    @IsString()
     @IsOptional()
     @IsUrl()
     imageUrl?: string;
+
+    @IsBoolean()
+    @IsOptional()
+    isPublished?: boolean;
 }

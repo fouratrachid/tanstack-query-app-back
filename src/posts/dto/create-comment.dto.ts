@@ -1,9 +1,9 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
+import { Sanitize } from '../../common/decorators/sanitize.decorator';
 
 export class CreateCommentDto {
     @IsString()
     @IsNotEmpty()
-    @MinLength(1)
-    @MaxLength(1000)
+    @Sanitize()
     content: string;
 }
